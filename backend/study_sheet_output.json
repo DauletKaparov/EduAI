@@ -1,0 +1,21 @@
+{
+  "title": "Study Sheet: Data Structures",
+  "sections": [
+    {
+      "title": "Introduction",
+      "content": "Arrays and lists are among the most fundamental data structures. An array is a collection of elements identified by index or key. Lists are similar but typically offer dynamic sizing and additional operations.\n\nArrays store elements in contiguous memory locations, resulting in easily calculable addresses for the elements. This makes accessing an array element very efficient. However, the size of an array is fixed, making insertion and deletion operations potentially inefficient due to the need t..."
+    },
+    {
+      "title": "Key Concepts",
+      "content": "### Introduction to Data Structures\n\nData structures are specialized formats for organizing and storing data to perform operations efficiently. They are essential components in computer science and software development.\n\nData structures provide a way to manage large amounts of data efficiently for uses such as large databases and internet indexing services. Different types of data structures are suited to different kinds of applications, and some are highly specialized to specific tasks.\n\nEfficient data structures are key to designing efficient algorithms, and can significantly impact the performance of software or systems. In most cases, proper data structure selection can make the difference between a program running in milliseconds versus hours.\n\n"
+    },
+    {
+      "title": "Examples",
+      "content": "### Array Implementation in Python\n\n```python\n# Using a Python list as an array\nmy_array = [10, 20, 30, 40, 50]\n\n# Accessing elements\nprint(my_array[0])  # Output: 10\nprint(my_array[2])  # Output: 30\n\n# Modifying elements\nmy_array[1] = 25\nprint(my_array)  # Output: [10, 25, 30, 40, 50]\n\n# Length of array\nprint(len(my_array))  # Output: 5\n\n# Adding elements\nmy_array.append(60)\nprint(my_array)  # Output: [10, 25, 30, 40, 50, 60]\n\n# Removing elements\nmy_array.pop(2)  # Remove element at index 2\nprint(my_array)  # Output: [10, 25, 40, 50, 60]\n```\n\n"
+    },
+    {
+      "title": "Summary",
+      "content": "This study sheet covered the following key terms:\n\n**list**, **data structures**, **algorithms**, **array**, **linked list**, **efficiency**, **contiguous memory**, **performance**, **pointers**"
+    }
+  ]
+}

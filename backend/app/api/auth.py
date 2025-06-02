@@ -47,11 +47,14 @@ async def register_user(user: UserCreate) -> Any:
     
     # Create new user
     hashed_password = get_password_hash(user.password)
+    current_time = datetime.utcnow()
     db_user = {
         "username": user.username,
         "email": user.email,
         "password_hash": hashed_password,
-        "preferences": user.preferences
+        "preferences": user.preferences,
+        "created_at": current_time,
+        "updated_at": current_time
     }
     
     # Insert into database

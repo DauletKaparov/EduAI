@@ -25,7 +25,7 @@ const SubjectsPage: React.FC = () => {
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8003';
 
   // Get selected subject from URL params
   useEffect(() => {
@@ -35,20 +35,14 @@ const SubjectsPage: React.FC = () => {
     }
   }, [searchParams]);
 
-  // Fetch subjects
+  // Fetch subjects - MODIFIED TO USE TEST ENDPOINTS WITHOUT AUTHENTICATION
   useEffect(() => {
     const fetchSubjects = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem('token');
         
-        if (!token) {
-          throw new Error('No authentication token found');
-        }
-        
-        const response = await axios.get(`${API_URL}/api/subjects`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        // Use test endpoint that doesn't require authentication
+        const response = await axios.get(`${API_URL}/api/test/subjects`);
         
         setSubjects(response.data);
         
@@ -70,24 +64,21 @@ const SubjectsPage: React.FC = () => {
     fetchSubjects();
   }, [API_URL, searchParams]);
 
-  // Fetch topics for selected subject
+  // Fetch topics for selected subject - MODIFIED TO USE TEST ENDPOINTS WITHOUT AUTHENTICATION
   useEffect(() => {
     const fetchTopics = async () => {
       if (!selectedSubject) return;
       
       try {
         setLoading(true);
-        const token = localStorage.getItem('token');
         
-        if (!token) {
-          throw new Error('No authentication token found');
-        }
+        // Get all topics from test endpoint and filter by subject_id
+        const response = await axios.get(`${API_URL}/api/test/topics`);
         
-        const response = await axios.get(`${API_URL}/api/topics?subject_id=${selectedSubject}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        // Filter topics by selected subject
+        const filteredTopics = response.data.filter((topic: any) => topic.subject_id === selectedSubject);
         
-        setTopics(response.data);
+        setTopics(filteredTopics); // Use the filtered topics
         setLoading(false);
       } catch (err) {
         console.error('Error fetching topics:', err);

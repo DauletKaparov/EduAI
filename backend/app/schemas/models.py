@@ -10,23 +10,28 @@ class PyObjectId(ObjectId):
         yield cls.validate
         
     @classmethod
-    def validate(cls, v):
+    def validate(cls, v, info=None):
         if not ObjectId.is_valid(v):
-            raise ValueError("Invalid objectid")
+            if info:
+                info.fail('Invalid ObjectId')
+            else:
+                raise ValueError("Invalid objectid")
         return ObjectId(v)
         
     @classmethod
-    def __modify_schema__(cls, field_schema):
+    def __get_pydantic_json_schema__(cls, _core_schema, field_schema):
         field_schema.update(type="string")
+        return field_schema
 
 # Base model
 class MongoBaseModel(BaseModel):
     id: Optional[PyObjectId] = Field(default=None, alias="_id")
     
-    class Config:
-        allow_population_by_field_name = True
-        arbitrary_types_allowed = True
-        json_encoders = {ObjectId: str}
+    model_config = {
+        "validate_by_name": True,
+        "arbitrary_types_allowed": True,
+        "json_encoders": {ObjectId: str}
+    }
 
 # Subject models
 class SubjectBase(BaseModel):

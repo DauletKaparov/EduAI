@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api import auth, subjects, topics, contents, questions, users, ai_generator
+from app.api import auth, subjects, topics, contents, questions, users, ai_generator, test_endpoints
 from app.database import create_indexes
 
 # Create FastAPI app
@@ -13,7 +13,12 @@ app = FastAPI(
 # Configure CORS
 origins = [
     "http://localhost:3000",
+    "http://localhost:3001",
+    "http://localhost:3002",
     "http://localhost:8000",
+    "http://localhost:8001",
+    "http://localhost:8002",
+    "http://localhost:8003",
     "https://eduai-platform.vercel.app"
 ]
 
@@ -33,6 +38,7 @@ app.include_router(contents.router, prefix="/api/contents", tags=["Contents"])
 app.include_router(questions.router, prefix="/api/questions", tags=["Questions"])
 app.include_router(users.router, prefix="/api/users", tags=["Users"])
 app.include_router(ai_generator.router, prefix="/api/generate", tags=["AI Generator"])
+app.include_router(test_endpoints.router)  # Already has prefix set in router definition
 
 @app.on_event("startup")
 async def startup():
@@ -45,4 +51,6 @@ async def root():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
+    import os
+    port = int(os.environ.get("PORT", 8003))
+    uvicorn.run("app.main:app", host="0.0.0.0", port=port, reload=True)

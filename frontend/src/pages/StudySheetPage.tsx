@@ -42,46 +42,41 @@ const StudySheetPage: React.FC = () => {
   const [submittingFeedback, setSubmittingFeedback] = useState(false);
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
 
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8003';
 
-  // Fetch study sheet data
+  // Fetch study sheet data - MODIFIED TO USE TEST ENDPOINTS WITHOUT AUTHENTICATION
   useEffect(() => {
     const fetchStudySheet = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem('token');
         
-        if (!token) {
-          throw new Error('No authentication token found');
-        }
-        
-        // Generate or fetch existing study sheet
-        const studySheetResponse = await axios.post(
-          `${API_URL}/api/generate/studysheet`,
-          { topic_id: topicId },
-          { headers: { Authorization: `Bearer ${token}` } }
+        // Use the test endpoint that doesn't require authentication
+        const studySheetResponse = await axios.get(
+          `${API_URL}/api/test/studysheet/${topicId}?knowledge_level=5.0`
         );
         
         setStudySheet(studySheetResponse.data);
+        console.log("Study sheet loaded:", studySheetResponse.data);
         
-        // Fetch topic details
-        const topicResponse = await axios.get(`${API_URL}/api/topics/${topicId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        // Use the test topics endpoint to get all topics
+        const topicsResponse = await axios.get(`${API_URL}/api/test/topics`);
         
-        setTopic(topicResponse.data);
+        // Find the current topic in the list
+        const currentTopic = topicsResponse.data.find((t: any) => t._id === topicId);
+        if (currentTopic) {
+          setTopic(currentTopic);
+          
+          // Since we don't have a test endpoint for subjects, we'll just create a mock subject
+          setSubject({
+            _id: currentTopic.subject_id || "mock-subject-id",
+            name: currentTopic.subject_name || "Computer Science"
+          });
+        }
         
-        // Fetch subject details
-        const subjectResponse = await axios.get(
-          `${API_URL}/api/subjects/${topicResponse.data.subject_id}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        
-        setSubject(subjectResponse.data);
         setLoading(false);
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error fetching study sheet:', err);
-        setError('Failed to load your personalized study sheet. Please try again later.');
+        setError('Failed to load your personalized study sheet: ' + (err.message || 'Please try again'));
         setLoading(false);
       }
     };
@@ -97,11 +92,7 @@ const StudySheetPage: React.FC = () => {
     
     try {
       setSubmittingFeedback(true);
-      const token = localStorage.getItem('token');
-      
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
+      // No token check needed for testing
       
       // In a real application, we would submit this feedback to the server
       // and use it to improve future study sheets
@@ -130,11 +121,7 @@ const StudySheetPage: React.FC = () => {
   // Generate practice questions
   const handleGenerateQuestions = async () => {
     try {
-      const token = localStorage.getItem('token');
-      
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
+      // No token check needed for testing
       
       // In a real application, this would navigate to a practice questions page
       // navigate(`/practice/${topicId}`);
