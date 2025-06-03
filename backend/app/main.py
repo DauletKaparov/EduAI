@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api import auth, subjects, topics, contents, questions, users, ai_generator, test_endpoints
+from app.api import auth, subjects, topics, contents, questions, users, ai_generator, test_endpoints, textbooks, enhanced_generator
 from app.database import create_indexes
 
 # Create FastAPI app
@@ -38,6 +38,8 @@ app.include_router(contents.router, prefix="/api/contents", tags=["Contents"])
 app.include_router(questions.router, prefix="/api/questions", tags=["Questions"])
 app.include_router(users.router, prefix="/api/users", tags=["Users"])
 app.include_router(ai_generator.router, prefix="/api/generate", tags=["AI Generator"])
+app.include_router(textbooks.router, prefix="/api/textbooks", tags=["Textbooks"])
+app.include_router(enhanced_generator.router, prefix="/api/generate", tags=["Enhanced Generator"])
 app.include_router(test_endpoints.router)  # Already has prefix set in router definition
 
 @app.on_event("startup")

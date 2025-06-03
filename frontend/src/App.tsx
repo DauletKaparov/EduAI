@@ -10,6 +10,8 @@ import SubjectsPage from './pages/SubjectsPage';
 import TopicPage from './pages/TopicPage';
 import StudySheetPage from './pages/StudySheetPage';
 import ProfilePage from './pages/ProfilePage';
+import TextbookUploadPage from './pages/TextbookUploadPage';
+import GenerateStudySheetPage from './pages/GenerateStudySheetPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -45,6 +47,16 @@ function App() {
           <Route path="profile" element={
             <ProtectedRoute>
               <ProfilePage />
+            </ProtectedRoute>
+          } />
+          <Route path="textbooks" element={
+            <ProtectedRoute>
+              <TextbookUploadPage />
+            </ProtectedRoute>
+          } />
+          <Route path="generate-study-sheet" element={
+            <ProtectedRoute>
+              <GenerateStudySheetPage />
             </ProtectedRoute>
           } />
         </Route>

@@ -34,6 +34,12 @@ const Layout: React.FC = () => {
                     <Link to="/subjects" className="text-base font-medium text-gray-700 hover:text-primary-600">
                       Subjects
                     </Link>
+                    <Link to="/textbooks" className="text-base font-medium text-gray-700 hover:text-primary-600">
+                      Textbooks
+                    </Link>
+                    <Link to="/generate-study-sheet" className="text-base font-medium text-gray-700 hover:text-primary-600">
+                      Create Sheet
+                    </Link>
                   </>
                 )}
                 <Link to="/about" className="text-base font-medium text-gray-700 hover:text-primary-600">
@@ -83,6 +89,12 @@ const Layout: React.FC = () => {
                 </Link>
                 <Link to="/subjects" className="text-base font-medium text-gray-700 hover:text-primary-600">
                   Subjects
+                </Link>
+                <Link to="/textbooks" className="text-base font-medium text-gray-700 hover:text-primary-600">
+                  Textbooks
+                </Link>
+                <Link to="/generate-study-sheet" className="text-base font-medium text-gray-700 hover:text-primary-600">
+                  Create Sheet
                 </Link>
               </>
             )}
