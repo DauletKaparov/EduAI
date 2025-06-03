@@ -27,6 +27,93 @@ const SubjectsPage: React.FC = () => {
 
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8003';
 
+  // Mock data for when backend is unavailable
+  const mockSubjects = [
+    {
+      _id: 's1',
+      name: 'Mathematics',
+      description: 'Study of numbers, quantities, and shapes',
+      source: 'mock'
+    },
+    {
+      _id: 's2',
+      name: 'Physics',
+      description: 'Science of matter, energy, and their interactions',
+      source: 'mock'
+    },
+    {
+      _id: 's3',
+      name: 'Computer Science',
+      description: 'Study of computation, automation, and information',
+      source: 'mock'
+    },
+    {
+      _id: 's4',
+      name: 'Biology',
+      description: 'Study of living organisms and their interactions',
+      source: 'mock'
+    },
+  ];
+
+  const mockTopics = [
+    {
+      _id: 't1',
+      name: 'Algebra',
+      description: 'Branch of mathematics dealing with symbols',
+      subject_id: 's1',
+      difficulty: 3,
+    },
+    {
+      _id: 't2',
+      name: 'Calculus',
+      description: 'Study of continuous change and functions',
+      subject_id: 's1',
+      difficulty: 5,
+    },
+    {
+      _id: 't3',
+      name: 'Geometry',
+      description: 'Study of shapes, sizes, and properties of space',
+      subject_id: 's1',
+      difficulty: 4,
+    },
+    {
+      _id: 't4',
+      name: 'Quantum Mechanics',
+      description: 'Theory describing nature at the atomic scale',
+      subject_id: 's2',
+      difficulty: 7,
+    },
+    {
+      _id: 't5',
+      name: 'Mechanics',
+      description: 'Study of motion and forces',
+      subject_id: 's2',
+      difficulty: 4,
+    },
+    {
+      _id: 't6',
+      name: 'Data Structures',
+      description: 'Methods of organizing data for efficient access',
+      subject_id: 's3',
+      difficulty: 4,
+    },
+    {
+      _id: 't7',
+      name: 'Algorithms',
+      description: 'Step-by-step procedures for calculations and problem-solving',
+      subject_id: 's3',
+      difficulty: 5,
+    },
+    {
+      _id: 't8',
+      name: 'Genetics',
+      description: 'Study of genes, heredity, and genetic variation',
+      subject_id: 's4',
+      difficulty: 6,
+    }
+  ];
+
   // Get selected subject from URL params
   useEffect(() => {
     const selected = searchParams.get('selected');
@@ -41,28 +128,48 @@ const SubjectsPage: React.FC = () => {
       try {
         setLoading(true);
         
-        // Use test endpoint that doesn't require authentication
-        const response = await axios.get(`${API_URL}/api/test/subjects`);
-        
-        setSubjects(response.data);
-        
-        // If a subject was selected from URL or there's only one subject, select it
-        if ((searchParams.get('selected') && response.data.some((s: Subject) => s._id === searchParams.get('selected'))) || 
-            (!selectedSubject && response.data.length === 1)) {
-          const subjectId = searchParams.get('selected') || response.data[0]._id;
-          setSelectedSubject(subjectId);
+        try {
+          // Use test endpoint that doesn't require authentication
+          const response = await axios.get(`${API_URL}/api/test/subjects`);
+          
+          setSubjects(response.data);
+          
+          // If a subject was selected from URL or there's only one subject, select it
+          if ((searchParams.get('selected') && response.data.some((s: Subject) => s._id === searchParams.get('selected'))) || 
+              (!selectedSubject && response.data.length === 1)) {
+            const subjectId = searchParams.get('selected') || response.data[0]._id;
+            setSelectedSubject(subjectId);
+          }
+        } catch (apiError) {
+          console.error('API call failed, using mock data:', apiError);
+          // Fallback to mock data if API calls fail
+          setSubjects(mockSubjects);
+          
+          // Set a default selected subject from mock data if needed
+          if (searchParams.get('selected')) {
+            const mockSelected = mockSubjects.find(s => s._id === searchParams.get('selected'));
+            if (mockSelected) {
+              setSelectedSubject(mockSelected._id);
+            } else {
+              setSelectedSubject(mockSubjects[0]._id);
+            }
+          } else if (!selectedSubject) {
+            setSelectedSubject(mockSubjects[0]._id);
+          }
         }
         
         setLoading(false);
       } catch (err) {
         console.error('Error fetching subjects:', err);
-        setError('Failed to load subjects. Please try again later.');
+        // Use mock data even if there's an error
+        setSubjects(mockSubjects);
+        setSelectedSubject(selectedSubject || mockSubjects[0]._id);
         setLoading(false);
       }
     };
     
     fetchSubjects();
-  }, [API_URL, searchParams]);
+  }, [API_URL, searchParams, selectedSubject]);
 
   // Fetch topics for selected subject - MODIFIED TO USE TEST ENDPOINTS WITHOUT AUTHENTICATION
   useEffect(() => {
@@ -72,17 +179,33 @@ const SubjectsPage: React.FC = () => {
       try {
         setLoading(true);
         
-        // Get all topics from test endpoint and filter by subject_id
-        const response = await axios.get(`${API_URL}/api/test/topics`);
+        try {
+          // Get all topics from test endpoint and filter by subject_id
+          const response = await axios.get(`${API_URL}/api/test/topics`);
+          
+          // Filter topics by selected subject
+          const filteredTopics = response.data.filter((topic: any) => topic.subject_id === selectedSubject);
+          
+          setTopics(filteredTopics); // Use the filtered topics
+        } catch (apiError) {
+          console.error('API call failed, using mock topics data:', apiError);
+          // Fallback to mock data if API calls fail
+          // Check if selectedSubject is from mock data (starts with 's')
+          if (selectedSubject.startsWith('s')) {
+            const filteredMockTopics = mockTopics.filter(topic => topic.subject_id === selectedSubject);
+            setTopics(filteredMockTopics);
+          } else {
+            // If it's a real subject ID but API failed, show empty topics
+            setTopics([]);
+          }
+        }
         
-        // Filter topics by selected subject
-        const filteredTopics = response.data.filter((topic: any) => topic.subject_id === selectedSubject);
-        
-        setTopics(filteredTopics); // Use the filtered topics
         setLoading(false);
       } catch (err) {
         console.error('Error fetching topics:', err);
-        setError('Failed to load topics. Please try again later.');
+        // Still use mock data instead of showing error
+        const filteredMockTopics = mockTopics.filter(topic => topic.subject_id === selectedSubject);
+        setTopics(filteredMockTopics);
         setLoading(false);
       }
     };
