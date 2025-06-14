@@ -1,4 +1,4 @@
-# EduAI – Adaptive Learning 🚀
+# EduAI – Adaptive Learning Copilot 🚀
 *Python • FastAPI • React* &nbsp;|&nbsp; **License:** MIT
 
 A lightweight full-stack application that automatically crafts study sheets, adaptive quizzes, and learning paths from any syllabus – no paid APIs, just Python & TypeScript ♥.
@@ -10,10 +10,34 @@ A lightweight full-stack application that automatically crafts study sheets, ada
 - ⚡ **Instant Preview UI** – React + Tailwind, progressive reveal
 - 🧠 **Self-Improving** – collects feedback & refines prompts continuously
 
+## 🖥️ Application Preview
+
+### Dashboard
+![Dashboard Preview](docs/images/dashboard.png)
+*Personalized learning dashboard showing progress and recent topics*
+
+### Study Sheet Generation
+![Study Sheet Preview](docs/images/study-sheet.png)
+*Create customized study materials with AI*
+
+### Textbook Management
+![Textbook Upload Preview](docs/images/textbook-upload.png)
+*Upload and manage educational resources*
+
+### Subject Page
+![Subject Page](docs/images/subject-page.png)
+*Detailed subject view with learning materials and progress tracking*
+
+### Landing Page
+![Landing Page](docs/images/landing-page.png)
+*Welcome page with key features and call-to-action*
+
 ## 📸 Demo
-- **Live Preview:** https://eduai-demo.netlify.app  (`admin/admin`)
-- **Video Walk-through:** docs/demo.mp4 (2 min)
-- **GIF Snapshot:** docs/demo.gif
+You can log in to the demo using the following admin credentials:
+- **Username:** admin
+- **Password:** admin
+
+Explore the platform's features including textbook upload, study sheet generation, and progress tracking.
 
 ## 🏗️ Architecture
 ```
