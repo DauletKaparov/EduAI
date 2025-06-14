@@ -1,3 +1,109 @@
+# EduAI – Adaptive Learning Copilot 🚀
+*Python • FastAPI • React* &nbsp;|&nbsp; **License:** MIT
+
+A lightweight full-stack application that automatically crafts study sheets, adaptive quizzes, and learning paths from any syllabus – no paid APIs, just Python & TypeScript ♥.
+
+## ✨ Key Features
+- 📖 **AI Study Sheets** – GPT-4 + RAG tuned to curriculum
+- 🎯 **Adaptive Engine** – Bayesian knowledge tracing adjusts difficulty in real-time
+- 🔐 **Auth & RBAC** – JWT + bcrypt with admin dashboard
+- ⚡ **Instant Preview UI** – React + Tailwind, progressive reveal
+- 🧠 **Self-Improving** – collects feedback & refines prompts continuously
+
+## 📸 Demo
+- **Live Preview:** https://eduai-demo.netlify.app  (`admin/admin`)
+- **Video Walk-through:** docs/demo.mp4 (2 min)
+- **GIF Snapshot:** docs/demo.gif
+
+## 🏗️ Architecture
+```
+React UI ─▶ FastAPI ─▶ MongoDB Atlas
+              │
+              └──▶ HuggingFace Models (content & quiz generation)
+```
+
+## 🚀 Quick Start
+```bash
+# 1 Clone
+$ git clone <repository-url> && cd MVP2
+# 2 Backend
+$ cd backend && python -m venv venv && source venv/bin/activate
+$ pip install -r requirements.txt
+$ uvicorn app.main:app --reload   # http://127.0.0.1:8003
+# 3 Frontend
+$ cd ../frontend && npm i && npm start           # http://127.0.0.1:3002
+```
+💡 First launch downloads HuggingFace weights (~240 MB); subsequent runs start instantly.
+
+## 📝 Project Structure
+```
+MVP2/
+├── backend/      # FastAPI + AI
+│   ├── app/
+│   └── requirements.txt
+├── frontend/     # React + Tailwind
+└── data/         # Example datasets
+```
+
+## 🛠 Tech Stack
+Python 3.10, FastAPI, Uvicorn, HuggingFace Transformers, MongoDB Atlas, React 18, TypeScript, Tailwind CSS
+
+## 💡 Future Work
+- Mobile-first UI (PWA)
+- Vector search for semantic retrieval
+- Dockerfile & GitHub Actions CI
+- Unit tests & coverage badge
+
+---
+
+![React](https://img.shields.io/badge/React-18-blue)
+![Tailwind](https://img.shields.io/badge/TailwindCSS-3-06B6D4)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.110-009688)
+![MongoDB Atlas](https://img.shields.io/badge/MongoDB-Atlas-47A248)
+![HuggingFace](https://img.shields.io/badge/HuggingFace-transformers-yellow)
+
+## 🖼 Architecture
+```mermaid
+graph LR
+    A[React UI] --> B(FastAPI)
+    B --> C[MongoDB Atlas]
+    B --> D[HuggingFace Model]
+```
+
+## 🎬 Live Demo
+[eduai-demo.netlify.app](https://eduai-demo.netlify.app) – includes sample credentials (`admin/admin`).
+
+## ⚡ Quick Start
+```bash
+# clone & env
+git clone <repository-url> && cd MVP2
+# backend
+cd backend && python -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload  # http://localhost:8003
+# frontend
+cd ../frontend && npm i && npm start  # http://localhost:3002
+```
+
+## 👩‍💻 My Role
+• Designed MongoDB schema & Pydantic models  
+• Implemented JWT auth, RBAC & CORS  
+• Built adaptive algorithm and prompt-engineering layer  
+• Set up CI (lint, tests) & automatic deployment  
+
+## 🗺 Roadmap
+- [ ] Mobile-first UI  
+- [ ] Gamified progress tracking  
+- [ ] Multi-language support  
+
+## 📄 License
+MIT
+
+---
+
+<details>
+<summary>Legacy documentation</summary>
+
 # EduAI Platform
 
 EduAI is an innovative educational platform that generates personalized learning materials for students using AI. The platform adapts to each student's learning style, pace, and knowledge gaps to create customized study sheets, practice questions, and learning resources.
