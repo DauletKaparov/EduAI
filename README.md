@@ -1,4 +1,4 @@
-# EduAI – Adaptive Learning Copilot 🚀
+# EduAI – Adaptive Learning 🚀
 *Python • FastAPI • React* &nbsp;|&nbsp; **License:** MIT
 
 A lightweight full-stack application that automatically crafts study sheets, adaptive quizzes, and learning paths from any syllabus – no paid APIs, just Python & TypeScript ♥.
