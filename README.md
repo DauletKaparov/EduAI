@@ -13,23 +13,23 @@ A lightweight full-stack application that automatically crafts study sheets, ada
 ## 🖥️ Application Preview
 
 ### Dashboard
-![Dashboard Preview](docs/images/dashboard.png)
+![Dashboard Preview](data/images/dashboard.png)
 *Personalized learning dashboard showing progress and recent topics*
 
 ### Study Sheet Generation
-![Study Sheet Preview](docs/images/study-sheet.png)
+![Study Sheet Preview](data/images/study-sheet.png)
 *Create customized study materials with AI*
 
 ### Textbook Management
-![Textbook Upload Preview](docs/images/textbook-upload.png)
+![Textbook Upload Preview](data/images/textbook-upload.png)
 *Upload and manage educational resources*
 
 ### Subject Page
-![Subject Page](docs/images/subject-page.png)
+![Subject Page](data/images/subject-page.png)
 *Detailed subject view with learning materials and progress tracking*
 
 ### Landing Page
-![Landing Page](docs/images/landing.png)
+![Landing Page](data/images/landing.png)
 *Welcome page with key features and call-to-action*
 
 ## 📸 Demo
