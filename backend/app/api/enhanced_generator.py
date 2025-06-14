@@ -6,8 +6,8 @@ import os
 from bson import ObjectId
 from pymongo import MongoClient
 from app.database import get_database
-from app.auth.auth import get_current_user
-from app.models.user import User
+from app.utils.auth import get_current_user
+from app.schemas.models import User
 from app.api.test_endpoints import generate_test_study_sheet
 import logging
 
@@ -112,13 +112,26 @@ async def generate_enhanced_study_sheet(
         topic_name = topic.get("name", "Unknown Topic")
         
         # Check cache for existing study sheet
-        cache_key = f"{topic_id}_{knowledge_level}_{education_system}_{grade}"
+        # Include all parameters that affect the content in the cache key
+        additional_info_hash = str(hash(additional_info or '')) if additional_info else 'none'
+        cache_key = f"{topic_id}_{knowledge_level}_{education_system}_{grade}_{additional_info_hash}_{use_textbooks}"
         cache_file = os.path.join(CACHE_DIR, f"{cache_key.replace(' ', '_')}.json")
         
-        if os.path.exists(cache_file):
-            logger.info(f"Found cached study sheet for {topic_name}")
+        # Add timestamp-based cache invalidation - if cache is older than 24 hours, regenerate
+        cache_exists = os.path.exists(cache_file)
+        cache_is_fresh = False
+        
+        if cache_exists:
+            cache_timestamp = os.path.getmtime(cache_file)
+            cache_age_hours = (datetime.now().timestamp() - cache_timestamp) / 3600
+            cache_is_fresh = cache_age_hours < 24  # Cache valid for 24 hours
+            
+        if cache_exists and cache_is_fresh:
+            logger.info(f"Found fresh cached study sheet for {topic_name}")
             with open(cache_file, "r") as f:
                 return json.load(f)
+            
+        logger.info(f"Generating new study sheet for {topic_name} (cache_exists={cache_exists}, fresh={cache_is_fresh})")
         
         # First, try to find relevant content from uploaded textbooks
         textbook_content = []
@@ -132,13 +145,11 @@ async def generate_enhanced_study_sheet(
             )
         
         # Generate study sheet (in a real implementation, this would be more sophisticated)
-        # For now, we'll use our existing generator and augment it with textbook content
-        
-        # First get the base study sheet
+        # Generate a free-form study sheet using topic information
         base_study_sheet = await generate_test_study_sheet(
             topic_id=topic_id,
             knowledge_level=knowledge_level,
-            fetch_only=False,
+            fetch_only=False,  # Always generate a new sheet
             db=db
         )
         

@@ -8,8 +8,8 @@ import uuid
 from pymongo import MongoClient
 from bson import ObjectId
 from app.database import get_database
-from app.auth.auth import get_current_user
-from app.models.user import User
+from app.utils.auth import get_current_user
+from app.schemas.models import User
 import pypdf
 
 router = APIRouter()

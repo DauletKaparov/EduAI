@@ -199,57 +199,47 @@ const GenerateStudySheetPage: React.FC = () => {
     }
   ];
 
-  // Load education systems and subjects
-  useEffect(() => {
-    const fetchInitialData = async () => {
-      setLoading(true);
-      setError('');
+  const fetchInitialData = async () => {
+    setLoading(true);
+    setError('');
 
-      try {
-        // Check if we're using admin user
-        const token = localStorage.getItem('token');
-        const isAdminUser = token === 'admin-dev-token';
-
-        if (isAdminUser) {
-          setEducationSystems(mockEducationSystems);
-          setSubjects(mockSubjects);
-          setTopics(mockTopics);
-          setLoading(false);
-          return;
-        }
-
-        // Try to fetch real data
-        try {
-          // Fetch education systems
-          const educationSystemsResponse = await axios.get(`${API_URL}/api/education-systems`);
-          setEducationSystems(educationSystemsResponse.data);
-
-          // Fetch subjects
-          const subjectsResponse = await axios.get(`${API_URL}/api/test/subjects`);
-          setSubjects(subjectsResponse.data);
-
-          // Fetch topics
-          const topicsResponse = await axios.get(`${API_URL}/api/test/topics`);
-          setTopics(topicsResponse.data);
-        } catch (apiError) {
-          console.error('API calls failed, using mock data:', apiError);
-          // Fall back to mock data
-          setEducationSystems(mockEducationSystems);
-          setSubjects(mockSubjects);
-          setTopics(mockTopics);
-        }
-      } catch (err) {
-        console.error('Error fetching initial data:', err);
-        setError('Failed to load necessary data. Using default options.');
-        // Use mock data as fallback
-        setEducationSystems(mockEducationSystems);
-        setSubjects(mockSubjects);
-        setTopics(mockTopics);
-      } finally {
-        setLoading(false);
+    try {
+      // Try to fetch education systems from API
+      const response = await axios.get(`${API_URL}/api/education-systems`);
+      if (response.data) {
+        setEducationSystems(response.data);
       }
-    };
+    } catch (err) {
+      console.log('Using mock education systems data');
+      setEducationSystems(mockEducationSystems);
+    }
 
+    try {
+      // Try to fetch subjects from API
+      const response = await axios.get(`${API_URL}/api/subjects`);
+      if (response.data) {
+        setSubjects(response.data);
+      }
+    } catch (err) {
+      console.log('Using mock subjects data');
+      setSubjects(mockSubjects);
+    }
+
+    try {
+      // Try to fetch topics from API
+      const response = await axios.get(`${API_URL}/api/topics`);
+      if (response.data) {
+        setTopics(response.data);
+      }
+    } catch (err) {
+      console.log('Using mock topics data');
+      setTopics(mockTopics);
+    }
+
+    setLoading(false);
+  };
+
+  useEffect(() => {
     fetchInitialData();
   }, [API_URL]);
 
@@ -274,140 +264,111 @@ const GenerateStudySheetPage: React.FC = () => {
   }, [subject, topics]);
 
   const handleNextStep = () => {
-    setStep(prevStep => prevStep + 1);
+    setStep(step + 1);
   };
 
   const handlePrevStep = () => {
-    setStep(prevStep => prevStep - 1);
+    setStep(step - 1);
   };
 
   const validateCurrentStep = (): boolean => {
-    setError('');
-
-    switch (step) {
-      case 1:
-        if (!educationSystem) {
-          setError('Please select an education system');
-          return false;
-        }
-        if (!grade) {
-          setError('Please select a grade level');
-          return false;
-        }
-        break;
-      case 2:
-        if (!subject) {
-          setError('Please select a subject');
-          return false;
-        }
-        if (!topic) {
-          setError('Please select a topic');
-          return false;
-        }
-        break;
-      default:
-        break;
+    if (step === 1) {
+      // Validate education system and grade
+      if (!educationSystem) {
+        setError('Please select an education system');
+        return false;
+      }
+      if (!grade) {
+        setError('Please select a grade level');
+        return false;
+      }
+    } else if (step === 2) {
+      // Validate subject and topic
+      if (!subject) {
+        setError('Please select a subject');
+        return false;
+      }
+      if (!topic) {
+        setError('Please enter a topic');
+        return false;
+      }
     }
 
+    setError('');
     return true;
   };
 
   const handleStepAction = () => {
-    if (!validateCurrentStep()) return;
-
     if (step < 3) {
-      handleNextStep();
+      if (validateCurrentStep()) {
+        handleNextStep();
+      }
     } else {
       handleGenerateStudySheet();
     }
   };
 
   const handleGenerateStudySheet = async () => {
+    if (!validateCurrentStep()) {
+      return;
+    }
+
     setGeneratingSheet(true);
     setError('');
 
     try {
-      // Check if we're using admin user with mock data
-      const token = localStorage.getItem('token');
-      const isAdminUser = token === 'admin-dev-token';
-      const isMockTopic = topic.startsWith('t');
+      // Get subject and education system names for logging
+      const subjectName = subjects.find(s => s._id === subject)?.name || subject;
+      const educationSystemName = educationSystems.find(es => es.id === educationSystem)?.name || educationSystem;
+      const gradeName = grades.find(g => g.id === grade)?.name || grade;
 
-      if (isAdminUser && isMockTopic) {
-        console.log('Using mock study sheet generation for admin user');
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        // Navigate to the generated study sheet
-        navigate(`/study-sheet/${topic}`);
-        return;
-      }
+      console.log(`Generating study sheet for ${subjectName} - ${topic} (${educationSystemName}, ${gradeName})`);
 
-      // Prepare generation parameters
-      const generationParams = {
-        topic_id: topic,
+      // Prepare request payload
+      const payload = {
+        education_system: educationSystemName,
+        grade: gradeName,
+        subject: subjectName,
+        topic: topic,
         knowledge_level: knowledgeLevel,
-        education_system: educationSystems.find(es => es.id === educationSystem)?.name || '',
-        grade: grades.find(g => g.id === grade)?.name || '',
         additional_info: additionalInfo,
-        use_textbooks: useTextbooks
+        use_textbooks: useTextbooks,
       };
 
-      console.log('Generating study sheet with params:', generationParams);
+      // Call API to generate study sheet
+      const response = await generatorAPI.generateEnhancedStudySheet(payload);
 
-      // First, try enhanced generation with all parameters
-      try {
-        const response = await axios.post(
-          `${API_URL}/api/generate/enhanced-study-sheet`, 
-          generationParams,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-
-        if (response.status === 200 && response.data) {
-          navigate(`/study-sheet/${topic}`);
-          return;
-        }
-      } catch (enhancedError) {
-        console.error('Enhanced generation failed:', enhancedError);
-        
-        // Fall back to standard generation
-        try {
-          const fallbackResponse = await generatorAPI.generateStudySheet(topic);
-          
-          if (fallbackResponse.status === 200 && fallbackResponse.data) {
-            navigate(`/study-sheet/${topic}`);
-            return;
+      if (response.data) {
+        console.log('Study sheet generated successfully');
+        // Navigate to the study sheet page
+        navigate(`/study-sheet/${response.data.sheet_id}`, {
+          state: {
+            content: response.data.content,
+            topic: topic,
+            subject: subjectName,
           }
-        } catch (fallbackError) {
-          console.error('Fallback generation also failed:', fallbackError);
-          throw new Error('All generation methods failed');
-        }
+        });
       }
-    } catch (err) {
-      console.error('Study sheet generation error:', err);
-      setError('Failed to generate study sheet. Please try again.');
-      
-      // If using admin, force navigation anyway
-      if (localStorage.getItem('token') === 'admin-dev-token') {
-        console.log('Forcing navigation for admin user despite errors');
-        setTimeout(() => {
-          navigate(`/study-sheet/${topic}`);
-        }, 1000);
-      }
+    } catch (err: any) {
+      console.error('Error generating study sheet', err);
+      setError(err.response?.data?.detail || 'Failed to generate study sheet. Please try again.');
     } finally {
       setGeneratingSheet(false);
     }
   };
 
+  // Render content based on current step
   const renderStepContent = () => {
     switch (step) {
       case 1:
         return (
           <div className="space-y-6">
             <div>
-              <label htmlFor="education-system" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="educationSystem" className="block text-sm font-medium text-gray-700">
                 Education System
               </label>
               <select
-                id="education-system"
+                id="educationSystem"
                 value={educationSystem}
                 onChange={(e) => setEducationSystem(e.target.value)}
                 className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md"
@@ -421,7 +382,7 @@ const GenerateStudySheetPage: React.FC = () => {
               </select>
               {educationSystem && (
                 <p className="mt-2 text-sm text-gray-500">
-                  {educationSystems.find((system) => system.id === educationSystem)?.description}
+                  {educationSystems.find((es) => es.id === educationSystem)?.description}
                 </p>
               )}
             </div>
@@ -474,25 +435,18 @@ const GenerateStudySheetPage: React.FC = () => {
               <label htmlFor="topic" className="block text-sm font-medium text-gray-700">
                 Topic
               </label>
-              <select
+              <input
+                type="text"
                 id="topic"
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
                 disabled={!subject}
+                placeholder="Enter your topic (e.g., Algebra, French Revolution, Photosynthesis)"
                 className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md"
-              >
-                <option value="">Select a topic</option>
-                {filteredTopics.map((topicItem) => (
-                  <option key={topicItem._id} value={topicItem._id}>
-                    {topicItem.name}
-                  </option>
-                ))}
-              </select>
-              {topic && (
-                <p className="mt-2 text-sm text-gray-500">
-                  {filteredTopics.find((t) => t._id === topic)?.description}
-                </p>
-              )}
+              />
+              <p className="mt-2 text-sm text-gray-500">
+                Be specific about what you want to learn about this topic
+              </p>
             </div>
           </div>
         );
@@ -501,56 +455,60 @@ const GenerateStudySheetPage: React.FC = () => {
         return (
           <div className="space-y-6">
             <div>
-              <label htmlFor="knowledge-level" className="block text-sm font-medium text-gray-700">
-                Knowledge Level (1-10): {knowledgeLevel}
+              <label htmlFor="knowledgeLevel" className="block text-sm font-medium text-gray-700">
+                Knowledge Level (1-10)
               </label>
-              <input
-                type="range"
-                id="knowledge-level"
-                min="1"
-                max="10"
-                value={knowledgeLevel}
-                onChange={(e) => setKnowledgeLevel(parseInt(e.target.value))}
-                className="mt-1 block w-full"
-              />
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
-                <span>Beginner</span>
-                <span>Intermediate</span>
-                <span>Advanced</span>
+              <div className="mt-1 flex items-center">
+                <input
+                  type="range"
+                  id="knowledgeLevel"
+                  min="1"
+                  max="10"
+                  value={knowledgeLevel}
+                  onChange={(e) => setKnowledgeLevel(parseInt(e.target.value))}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                />
+                <span className="ml-3 text-sm font-medium text-gray-700">{knowledgeLevel}</span>
               </div>
+              <p className="mt-1 text-sm text-gray-500">
+                {knowledgeLevel <= 3
+                  ? 'Beginner: Basic concepts and introductory content'
+                  : knowledgeLevel <= 7
+                  ? 'Intermediate: Moderate depth and some advanced concepts'
+                  : 'Advanced: In-depth and comprehensive coverage'}
+              </p>
             </div>
 
             <div>
-              <label htmlFor="additional-info" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="additionalInfo" className="block text-sm font-medium text-gray-700">
                 Additional Information (Optional)
               </label>
               <textarea
-                id="additional-info"
-                rows={3}
+                id="additionalInfo"
                 value={additionalInfo}
                 onChange={(e) => setAdditionalInfo(e.target.value)}
-                placeholder="Any specific areas you want to focus on, learning goals, or preferences for the study sheet."
-                className="mt-1 block w-full shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm border border-gray-300 rounded-md"
+                rows={3}
+                placeholder="Any specific areas to focus on or additional context..."
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
               />
             </div>
 
-            <div className="flex items-start">
-              <div className="flex items-center h-5">
+            <div className="relative flex items-start">
+              <div className="flex h-5 items-center">
                 <input
-                  id="use-textbooks"
-                  name="use-textbooks"
+                  id="useTextbooks"
                   type="checkbox"
                   checked={useTextbooks}
                   onChange={(e) => setUseTextbooks(e.target.checked)}
-                  className="focus:ring-primary-500 h-4 w-4 text-primary-600 border-gray-300 rounded"
+                  className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                 />
               </div>
               <div className="ml-3 text-sm">
-                <label htmlFor="use-textbooks" className="font-medium text-gray-700">
-                  Use Uploaded Textbooks
+                <label htmlFor="useTextbooks" className="font-medium text-gray-700">
+                  Use my uploaded textbooks
                 </label>
                 <p className="text-gray-500">
-                  The system will use knowledge from your uploaded textbooks to generate a more accurate and relevant study sheet.
+                  Include content from textbooks you've uploaded to enhance your study sheet
                 </p>
               </div>
             </div>
@@ -566,38 +524,35 @@ const GenerateStudySheetPage: React.FC = () => {
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Generate Study Sheet</h1>
-        <p className="mt-2 text-sm text-gray-500">
+        <p className="mt-2 text-lg text-gray-600">
           Create a personalized study sheet by providing information about your educational needs.
         </p>
       </div>
 
       {error && (
-        <div className="rounded-md bg-red-50 p-4 mb-6">
+        <div className="mb-4 rounded-md bg-red-50 p-4">
           <div className="flex">
             <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path
                   fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
                   clipRule="evenodd"
                 />
               </svg>
             </div>
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">Error</h3>
-              <div className="mt-2 text-sm text-red-700">
-                <p>{error}</p>
-              </div>
+              <h3 className="text-sm font-medium text-red-800">{error}</h3>
             </div>
           </div>
         </div>
       )}
 
-      <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+      <div className="bg-white shadow-lg overflow-hidden sm:rounded-lg border border-gray-100">
         <div className="px-4 py-5 sm:p-6">
-          <div className="mb-8">
+          <div className="mb-12">
             <nav aria-label="Progress">
-              <ol className="flex items-center">
+              <ol className="flex items-center justify-center">
                 {[1, 2, 3].map((stepNumber) => (
                   <li
                     key={stepNumber}
@@ -621,9 +576,9 @@ const GenerateStudySheetPage: React.FC = () => {
                           setStep(stepNumber);
                         }
                       }}
-                      className={`relative w-8 h-8 flex items-center justify-center ${
+                      className={`relative w-10 h-10 flex items-center justify-center ${
                         stepNumber <= step
-                          ? 'bg-primary-600 rounded-full'
+                          ? 'bg-primary-600 rounded-full shadow-lg'
                           : 'bg-white border-2 border-gray-300 rounded-full'
                       }`}
                     >
@@ -635,8 +590,8 @@ const GenerateStudySheetPage: React.FC = () => {
                         {stepNumber}
                       </span>
                     </button>
-                    <div className="hidden sm:block absolute left-0 top-10 text-center w-full">
-                      <span className="text-sm font-medium text-gray-500">
+                    <div className="absolute left-0 top-12 text-center w-full">
+                      <span className={`text-sm font-medium ${stepNumber === step ? 'text-primary-600 font-bold' : 'text-gray-500'}`}>
                         {stepNumber === 1 ? 'Education System' : stepNumber === 2 ? 'Subject & Topic' : 'Preferences'}
                       </span>
                     </div>

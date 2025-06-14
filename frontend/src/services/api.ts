@@ -123,6 +123,34 @@ export const generatorAPI = {
     }
   },
   
+  generateEnhancedStudySheet: async (payload: any) => {
+    try {
+      // Call the enhanced study sheet generation endpoint
+      return await withRetry(() => api.post('/api/enhanced/generate', payload));
+    } catch (error) {
+      console.error('Failed to generate enhanced study sheet:', error);
+      
+      // As a fallback, try direct fetch with no auth
+      try {
+        const directResponse = await fetch(`${API_URL}/api/enhanced/generate`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+        if (!directResponse.ok) {
+          throw new Error(`Direct API call failed with status: ${directResponse.status}`);
+        }
+        const data = await directResponse.json();
+        return { status: 200, data };
+      } catch (directError) {
+        console.error('Direct API call also failed:', directError);
+        throw new Error('All attempts to generate enhanced study sheet failed');
+      }
+    }
+  },
+  
   // Fetch an existing study sheet without regenerating it
   fetchStudySheet: async (topicId: string) => {
     try {
