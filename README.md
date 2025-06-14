@@ -29,7 +29,7 @@ A lightweight full-stack application that automatically crafts study sheets, ada
 *Detailed subject view with learning materials and progress tracking*
 
 ### Landing Page
-![Landing Page](docs/images/landing-page.png)
+![Landing Page](docs/images/landing.png)
 *Welcome page with key features and call-to-action*
 
 ## 📸 Demo
