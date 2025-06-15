@@ -100,7 +100,7 @@ graph LR
 ## ⚡ Quick Start
 ```bash
 # clone & env
-git clone <repository-url> && cd MVP2
+git clone <https://github.com/DauletKaparov/EduAI.git> && cd EduAI
 # backend
 cd backend && python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
