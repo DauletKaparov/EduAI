@@ -184,8 +184,8 @@ MVP2/
 
 1. Clone the repository:
    ```
-   git clone <repository-url>
-   cd MVP2
+   git clone <https://github.com/DauletKaparov/EduAI.git>
+   cd EduAI
    ```
 
 2. Set up the backend:
